@@ -17,6 +17,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
+import { Route as AuthenticatedAppModuleRouteImport } from './routes/_authenticated/app.$module'
 
 const PreviewRoute = PreviewRouteImport.update({
   id: '/preview',
@@ -58,6 +59,11 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppModuleRoute = AuthenticatedAppModuleRouteImport.update({
+  id: '/$module',
+  path: '/$module',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/preview': typeof PreviewRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/app/$module': typeof AuthenticatedAppModuleRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/preview': typeof PreviewRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/app/$module': typeof AuthenticatedAppModuleRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/preview': typeof PreviewRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/app/$module': typeof AuthenticatedAppModuleRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -95,10 +104,18 @@ export interface FileRouteTypes {
     | '/preview'
     | '/app'
     | '/onboarding'
+    | '/app/$module'
     | '/app/settings'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/preview' | '/onboarding' | '/app/settings' | '/app'
+  to:
+    | '/'
+    | '/auth'
+    | '/preview'
+    | '/onboarding'
+    | '/app/$module'
+    | '/app/settings'
+    | '/app'
   id:
     | '__root__'
     | '/'
@@ -107,6 +124,7 @@ export interface FileRouteTypes {
     | '/preview'
     | '/_authenticated/app'
     | '/_authenticated/onboarding'
+    | '/_authenticated/app/$module'
     | '/_authenticated/app/settings'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
@@ -176,15 +194,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/$module': {
+      id: '/_authenticated/app/$module'
+      path: '/$module'
+      fullPath: '/app/$module'
+      preLoaderRoute: typeof AuthenticatedAppModuleRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppModuleRoute: typeof AuthenticatedAppModuleRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppModuleRoute: AuthenticatedAppModuleRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
@@ -214,3 +241,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
