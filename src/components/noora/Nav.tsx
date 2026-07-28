@@ -23,10 +23,13 @@ export function Nav() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link to="/dashboard" className="hidden sm:inline-flex btn-ghost text-sm">
+          <Link to="/preview" className="hidden sm:inline-flex btn-ghost text-sm">
             معاينة اللوحة
           </Link>
-          <a href="#cta" className="btn-primary text-sm">ابدأ مجاناً</a>
+          <Link to="/auth" className="hidden sm:inline-flex btn-ghost text-sm">
+            دخول
+          </Link>
+          <Link to="/auth" className="btn-primary text-sm">ابدأ مجاناً</Link>
         </div>
       </div>
     </header>
