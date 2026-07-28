@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/preview")({
   head: () => ({
     meta: [
       { title: "لوحة AI CEO — NOORA Business OS" },
