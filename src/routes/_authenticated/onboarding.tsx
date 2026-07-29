@@ -37,10 +37,35 @@ function Onboarding() {
     setBusy(true);
     setErr(null);
     try {
-      const { data: org, error } = await supabase
-        .from("organizations")
-        .insert({ name, slug: slugify(name), currency, created_by: user.id, locale: "ar" })
-        .select()
+console.log("DEBUG USER", user, user?.id);
+console.log("USER ID =", user.id);
+
+const { data: authData } = await supabase.auth.getUser();
+const { data: sessionData } = await supabase.auth.getSession();
+
+alert(
+  JSON.stringify(
+    {
+      user: authData.user?.id,
+      session: !!sessionData.session,
+      access_token: !!sessionData.session?.access_token,
+    },
+    null,
+    2
+  )
+);
+alert("USER=" + user?.id + "\nAUTH=" + authData.user?.id);
+console.log("AUTH USER =", authData.user?.id);
+const { data: org, error } = await supabase
+  .from("organizations")
+  .insert({
+    name,
+    slug: slugify(name),
+    currency,
+    created_by: authData.user!.id,
+    locale: "ar",
+  })
+  .select()
         .single();
       if (error) throw error;
       const { error: memErr } = await supabase
@@ -49,8 +74,9 @@ function Onboarding() {
       if (memErr) throw memErr;
       await refresh();
       navigate({ to: "/app" });
-    } catch (e: any) {
-      setErr(e.message || "تعذّر إنشاء المؤسسة");
+} catch (e: any) {
+  alert(JSON.stringify(e, null, 2));
+  setErr(e.message || "تعذر إنشاء المؤسسة");
     } finally {
       setBusy(false);
     }
